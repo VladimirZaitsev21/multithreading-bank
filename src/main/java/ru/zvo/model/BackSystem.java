@@ -32,13 +32,6 @@ public class BackSystem {
     public void doCredit(Request request, String processorName) {
         synchronized (this) {
             int credit = request.getMoneyAmount();
-//            while (moneyBalance < credit) {
-//                try {
-//                    this.wait();
-//                } catch (InterruptedException e) {
-//                    Thread.currentThread().interrupt();
-//                }
-//            }
             if (moneyBalance > credit) {
                 moneyBalance -= credit;
                 requestsRemaining--;
@@ -46,7 +39,6 @@ public class BackSystem {
             } else {
                 System.out.printf(FAILURE_MESSAGE_PATTERN, request, processorName, moneyBalance);
             }
-//            System.out.println(NAME + ": " + request + "УСПЕШНО ВЫПОЛНЕНА. Получена от " + processorName + ". Баланс банка: " + moneyBalance);
             this.notifyAll();
         }
     }
