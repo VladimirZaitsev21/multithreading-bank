@@ -48,7 +48,6 @@ public class BackSystem {
             moneyBalance += request.getMoneyAmount();
             requestsRemaining--;
             System.out.printf(SUCCESS_MESSAGE_PATTERN, request, processorName, moneyBalance);
-//            System.out.println(NAME + ": " + request + "УСПЕШНО ВЫПОЛНЕНА. Получена от " + processorName + ". Баланс банка: " + moneyBalance);
             this.notifyAll();
         }
     }
