@@ -1,8 +1,9 @@
 package ru.zvo.model;
 
+import ru.zvo.view.ConsoleView;
+
 public class RequestProcessor implements Runnable {
 
-    private static final String MESSAGE_PATTERN = "%s: ѕолучена за€вка на обработку по клиенту - %s\n";
     private final String name;
 
     public RequestProcessor(String name) {
@@ -21,7 +22,7 @@ public class RequestProcessor implements Runnable {
             if (request == null) {
                 continue;
             }
-            System.out.printf(MESSAGE_PATTERN, name, request.getClientName());
+            ConsoleView.getInstance().informAboutProcessor(this, request);
             if (request.getOperationType() == BankOperationType.CREDIT) {
                 backSystem.doCredit(request, name);
             } else {

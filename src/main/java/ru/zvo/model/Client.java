@@ -1,8 +1,9 @@
 package ru.zvo.model;
 
+import ru.zvo.view.ConsoleView;
+
 public class Client implements Runnable {
 
-    private static final String CLIENT_MESSAGE_PATTERN = "%s: %s отправлена в банк\n";
     private String name;
     private int moneyAmount;
     private BankOperationType operationType;
@@ -22,7 +23,7 @@ public class Client implements Runnable {
     @Override
     public void run() {
         FrontSystem.getInstance().addRequest(request);
-        System.out.printf(CLIENT_MESSAGE_PATTERN, name, request);
+        ConsoleView.getInstance().informAboutClient(this, request);
     }
 
     @Override

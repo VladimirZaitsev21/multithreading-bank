@@ -1,11 +1,9 @@
 package ru.zvo.model;
 
+import ru.zvo.view.ConsoleView;
+
 public class BackSystem {
 
-    private int requestsRemaining = 5;
-    private static final String NAME = "Бэк система";
-    private static final String SUCCESS_MESSAGE_PATTERN = "Бэк система: %s УСПЕШНО ВЫПОЛНЕНА. Получена от %s. Баланс банка: %d\n";
-    private static final String FAILURE_MESSAGE_PATTERN = "Бэк система: %s НЕ ВЫПОЛНЕНА. Получена от %s. Баланс банка: %d\n";
     private int moneyBalance;
     private static volatile BackSystem instance;
     public static int instanceCount = 0;
@@ -25,19 +23,14 @@ public class BackSystem {
         return instance;
     }
 
-    public synchronized int getRequestsRemaining() {
-        return requestsRemaining;
-    }
-
     public void doCredit(Request request, String processorName) {
         synchronized (this) {
             int credit = request.getMoneyAmount();
             if (moneyBalance > credit) {
                 moneyBalance -= credit;
-                requestsRemaining--;
-                System.out.printf(SUCCESS_MESSAGE_PATTERN, request, processorName, moneyBalance);
+                ConsoleView.getInstance().informAboutBackSystem(request, processorName, moneyBalance, true);
             } else {
-                System.out.printf(FAILURE_MESSAGE_PATTERN, request, processorName, moneyBalance);
+                ConsoleView.getInstance().informAboutBackSystem(request, processorName, moneyBalance, false);
             }
             this.notifyAll();
         }
@@ -46,8 +39,7 @@ public class BackSystem {
     public void doRepayment(Request request, String processorName) {
         synchronized (this) {
             moneyBalance += request.getMoneyAmount();
-            requestsRemaining--;
-            System.out.printf(SUCCESS_MESSAGE_PATTERN, request, processorName, moneyBalance);
+            ConsoleView.getInstance().informAboutBackSystem(request, processorName, moneyBalance, true);
             this.notifyAll();
         }
     }
