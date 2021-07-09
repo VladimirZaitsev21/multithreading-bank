@@ -1,13 +1,19 @@
 package ru.zvo.model;
 
-import ru.zvo.view.ConsoleView;
+import ru.zvo.view.View;
 
 public class RequestProcessor implements Runnable {
 
     private final String name;
+    private final View view;
+    private final FrontSystem frontSystem;
+    private final BackSystem backSystem;
 
-    public RequestProcessor(String name) {
+    public RequestProcessor(String name, FrontSystem frontSystem, BackSystem backSystem, View view) {
         this.name = name;
+        this.frontSystem = frontSystem;
+        this.backSystem = backSystem;
+        this.view = view;
     }
 
     public String getName() {
@@ -15,14 +21,12 @@ public class RequestProcessor implements Runnable {
     }
 
     public void run() {
-        FrontSystem frontSystem = FrontSystem.getInstance();
-        BackSystem backSystem = BackSystem.getInstance();
         while (!Thread.currentThread().isInterrupted()) {
             Request request = frontSystem.getRequest();
             if (request == null) {
-                continue;
+                break;
             }
-            ConsoleView.getInstance().informAboutProcessor(this, request);
+            view.informAboutProcessor(this, request);
             if (request.getOperationType() == BankOperationType.CREDIT) {
                 backSystem.doCredit(request, name);
             } else {

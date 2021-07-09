@@ -1,19 +1,23 @@
 package ru.zvo.model;
 
-import ru.zvo.view.ConsoleView;
+import ru.zvo.view.View;
 
 public class Client implements Runnable {
 
-    private String name;
-    private int moneyAmount;
-    private BankOperationType operationType;
-    private Request request;
+    private final View view;
+    private final FrontSystem frontSystem;
+    private final String name;
+    private final int moneyAmount;
+    private final BankOperationType operationType;
+    private final Request request;
 
-    public Client(String name, int moneyAmount, BankOperationType operationType) {
+    public Client(String name, int moneyAmount, BankOperationType operationType, FrontSystem frontSystem, View view) {
         this.name = name;
         this.moneyAmount = moneyAmount;
         this.operationType = operationType;
         this.request = new Request(name, moneyAmount, operationType);
+        this.frontSystem = frontSystem;
+        this.view = view;
     }
 
     public String getName() {
@@ -22,8 +26,8 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
-        FrontSystem.getInstance().addRequest(request);
-        ConsoleView.getInstance().informAboutClient(this, request);
+        frontSystem.addRequest(request);
+        view.informAboutClient(this, request);
     }
 
     @Override

@@ -1,47 +1,39 @@
 package ru.zvo.model;
 
-import ru.zvo.view.ConsoleView;
+import ru.zvo.view.View;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BackSystem {
 
-    private int moneyBalance;
-    private static volatile BackSystem instance;
-    public static int instanceCount = 0;
+    private final AtomicInteger moneyBalance;
+    private final AtomicInteger requestsLeft;
+    private final View view;
 
-    private BackSystem() {
-        instanceCount++;
+    public AtomicInteger getRequestsLeft() {
+        return requestsLeft;
     }
 
-    public static BackSystem getInstance() {
-        if (instance == null) {
-            synchronized (FrontSystem.class) {
-                if (instance == null) {
-                    instance = new BackSystem();
-                }
-            }
-        }
-        return instance;
+    public BackSystem(int moneyBalance, int requestAmount, View view) {
+        this.moneyBalance = new AtomicInteger(moneyBalance);
+        this.requestsLeft = new AtomicInteger(requestAmount);
+        this.view = view;
     }
 
     public void doCredit(Request request, String processorName) {
-        synchronized (this) {
-            int credit = request.getMoneyAmount();
-            if (moneyBalance > credit) {
-                moneyBalance -= credit;
-                ConsoleView.getInstance().informAboutBackSystem(request, processorName, moneyBalance, true);
-            } else {
-                ConsoleView.getInstance().informAboutBackSystem(request, processorName, moneyBalance, false);
-            }
-            this.notifyAll();
+        int credit = request.getMoneyAmount();
+        if (moneyBalance.get() < credit) {
+            view.informAboutBackSystem(request, processorName, moneyBalance.get(), false);
+        } else {
+            view.informAboutBackSystem(request, processorName, moneyBalance.addAndGet(-request.getMoneyAmount()), true);
         }
+        requestsLeft.decrementAndGet();
+
     }
 
     public void doRepayment(Request request, String processorName) {
-        synchronized (this) {
-            moneyBalance += request.getMoneyAmount();
-            ConsoleView.getInstance().informAboutBackSystem(request, processorName, moneyBalance, true);
-            this.notifyAll();
-        }
+        view.informAboutBackSystem(request, processorName, moneyBalance.addAndGet(request.getMoneyAmount()), true);
+        requestsLeft.decrementAndGet();
     }
 
 }

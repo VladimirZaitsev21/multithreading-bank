@@ -1,45 +1,43 @@
 package ru.zvo.model;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class FrontSystem {
 
     private static final int MAX_REQUESTS_AMOUNT = 2;
-    private final Queue<Request> requests = new LinkedList<>();
-    private static volatile FrontSystem instance;
 
-    public static FrontSystem getInstance() {
-        if (instance == null) {
-            synchronized (FrontSystem.class) {
-                if (instance == null) {
-                    instance = new FrontSystem();
-                }
-            }
-        }
-        return instance;
-    }
+    /**
+     *
+     * Для того, чтобы обеспечить логику работы нашего приложения,
+     * необходимо использовать блокирующую очередь ограниченной емкости,
+     * чтобы заставить потоки ожидать освобождения места в очереди при добавлении
+     * заявки, если она полна, и ожидать появления элемента при попытке получении
+     * заявки, если очередь пуста.
+     * Таким образом, тип ссылки - BlockingQueue.
+     * В силу того, что очередь невелика, а добавление и удаление элементов происходит
+     * с концов очереди, мне показалось логичным использовать реализацию именно на основе массива,
+     * а не связанного списка.
+     *
+     * */
+    private final BlockingQueue<Request> requests = new ArrayBlockingQueue<>(MAX_REQUESTS_AMOUNT, true);
 
     public void addRequest(Request request) {
-        synchronized (this) {
-            while (requests.size() == MAX_REQUESTS_AMOUNT) {
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            requests.add(request);
-            this.notifyAll();
+        try {
+            requests.put(request);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
     public Request getRequest() {
-        synchronized (this) {
-            Request request = requests.poll();
-            this.notifyAll();
-            return request;
+        Request request = null;
+        try {
+            request = requests.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+        return request;
     }
 
 }
