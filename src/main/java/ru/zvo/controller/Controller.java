@@ -17,12 +17,12 @@ public class Controller {
     private static final String PROCESSOR_NAME_PATTERN = "Обработчик заявок #%d";
     private static final String BALANCE_GENERATOR_NAME_PATTERN = "Система выдачи денег банку #%d";
     private static final int BALANCE_GENERATORS_AMOUNT = 3;
-    public static final int MONEY_RATIO = 100000;
-    public static final int LOWER_TIME_BOUND = 5000;
-    public static final int UPPER_TIME_BOUND = 10000;
-    public static final int LOWER_BALANCE_BOUND = 20000;
-    public static final int UPPER_BALANCE_BOUND = 40000;
-    public static final int DEFAULT_BANK_BALANCE = 100000;
+    private static final int MONEY_RATIO = 100000;
+    private static final int LOWER_TIME_BOUND = 5000;
+    private static final int UPPER_TIME_BOUND = 10000;
+    private static final int LOWER_BALANCE_BOUND = 20000;
+    private static final int UPPER_BALANCE_BOUND = 40000;
+    private static final int DEFAULT_BANK_BALANCE = 100000;
     private final int clientsAmount;
     private final int processorsAmount;
     private final View view;
